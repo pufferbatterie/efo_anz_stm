@@ -385,9 +385,9 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-#ifdef LED_DEBUG
+// #ifdef LED_DEBUG
 		HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_SET);
-#endif
+// #endif
 		while (1) {
 			// DO NOTHING!
 		}
@@ -484,13 +484,12 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-/*
+
 static uint8_t c_up = 0;
 static uint8_t c_down = 0;
 static uint8_t c_left = 0;
 static uint8_t c_right = 0;
 static uint8_t c_enter = 0;
-*/
 static uint32_t exti_tick = 0;
 #define EXTI_DISP_LINE 0
 
@@ -561,6 +560,15 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
 	//lcd_display_write_line(1, buf);
 }
 
+/**
+ * json without newline!
+ * {
+ *   "line0": "text line 0",
+ *   "line4": "text to line 4"
+ *   "led1": True,
+ *   "led_lcd": False
+ * }
+ */
 void statham(char *json_bytes) {
 	json_t mem[100];
 	json_t const *json = json_create(json_bytes, mem, sizeof mem / sizeof *mem);
@@ -603,6 +611,11 @@ void statham(char *json_bytes) {
 	if (0 != led6 && JSON_BOOLEAN == json_getType(led6)) {
 		myhal_led_right3(json_getBoolean(led6));
 	}
+	json_t const *led_lcd = json_getProperty(json, "led_lcd");
+	if (0 != led_lcd && JSON_BOOLEAN == json_getType(led_lcd)) {
+		HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin,json_getBoolean(led_lcd));
+	}
+
 
 
 
