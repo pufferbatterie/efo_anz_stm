@@ -555,7 +555,7 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
 }
 
 void statham(char *json_bytes) {
-	json_t mem[32];
+	json_t mem[100];
 	json_t const *json = json_create(json_bytes, mem, sizeof mem / sizeof *mem);
 	if (!json) {
 		return;
@@ -602,7 +602,7 @@ void statham(char *json_bytes) {
 
 }
 
-static uint8_t rx_buf[120] = { 0 };
+static uint8_t rx_buf[200] = { 0 };
 uint8_t rx_buf_idx = 0;
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
@@ -620,7 +620,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		rx_buf_idx = 0;
 	}
 
-	if (UART1_rxBuffer == '\n') {
+	if (UART1_rxBuffer == '\n') {				// TODO: cheap-parsing only accept json without newlines
 		rx_buf[rx_buf_idx] = '\0';	//TERM
 		statham((char*) rx_buf);
 		memset(rx_buf, 0, sizeof(rx_buf));
