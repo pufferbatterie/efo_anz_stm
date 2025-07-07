@@ -109,6 +109,9 @@ void blink_and_text() {
 	HAL_Delay(400);
 }
 
+#define LED_DEBUG								0
+
+
 #define MODE_COMMAND                              0x00
 #define MODE_DATA                                 0x40
 
@@ -191,6 +194,27 @@ void blink_and_text() {
 #define LCD_BLINK 1
 #define LCD_N_ROW 4U  ///< Number of available rows on LCD
 #define LCD_N_COL 16U ///< Number of available columns on LCD
+
+
+void myhal_led_left1(GPIO_PinState ps){
+	HAL_GPIO_WritePin(LED_LEFT_1_GPIO_Port, LED_LEFT_1_Pin, ps);
+}
+void myhal_led_left2(GPIO_PinState ps){
+	HAL_GPIO_WritePin(LED_LEFT_2_GPIO_Port, LED_LEFT_2_Pin, ps);
+}
+void myhal_led_left3(GPIO_PinState ps){
+	HAL_GPIO_WritePin(LED_LEFT_3_GPIO_Port, LED_LEFT_3_Pin, ps);
+}
+
+void myhal_led_right1(GPIO_PinState ps){
+	HAL_GPIO_WritePin(LED_RIGHT_1_GPIO_Port, LED_RIGHT_1_Pin,ps);
+}
+void myhal_led_right2(GPIO_PinState ps){
+	HAL_GPIO_WritePin(LED_RIGHT_2_GPIO_Port, LED_RIGHT_2_Pin, ps);
+}
+void myhal_led_right3(GPIO_PinState ps){
+	HAL_GPIO_WritePin(LED_RIGHT_3_GPIO_Port, LED_RIGHT_3_Pin, ps);
+}
 
 void lcd_init() {
 	HAL_GPIO_WritePin(LCD_NRESET_GPIO_Port, LCD_NRESET_Pin, GPIO_PIN_SET);
@@ -284,7 +308,9 @@ void sendCommand(uint8_t cmd) {
 
 void loop_print_screen() {
 	while (1) {
+#ifdef LED_DEBUG
 		HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_SET);
+#endif
 		char rx_buff_byte[10] = { 0 };
 		HAL_StatusTypeDef ret = HAL_UART_Receive(&huart1, rx_buff_byte, 10,
 				1000);
@@ -356,40 +382,55 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
-
+#ifdef LED_DEBUG
 		HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_SET);
+#endif
 		while (1) {
 			// DO NOTHING!
 		}
 
 		while (1) {
 			if (HAL_GPIO_ReadPin(NH_enter_GPIO_Port, NH_enter_Pin)) {
+#ifdef LED_DEBUG
 				HAL_GPIO_WritePin(LED_RIGHT_1_GPIO_Port, LED_RIGHT_1_Pin,
 						GPIO_PIN_SET);
+#endif
 			} else {
+#ifdef LED_DEBUG
 				HAL_GPIO_WritePin(LED_RIGHT_1_GPIO_Port, LED_RIGHT_1_Pin,
 						GPIO_PIN_RESET);
+#endif
 			}
 		}
 		//loop_print_screen();
 
 		//HAL_Delay(6000);
+#ifdef LED_DEBUG
 		HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_SET);
+#endif
 		while (1) {
 			HAL_Delay(2000);
 			HAL_ADC_Start(&hadc1);
 			HAL_ADC_PollForConversion(&hadc1, 100);
 			uint16_t adc_val = HAL_ADC_GetValue(&hadc1);
 			HAL_ADC_Stop(&hadc1);
+#ifdef LED_DEBUG
 			HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_RESET);
+#endif
 			uint8_t tx_buff[] = "hallo";
 			HAL_UART_Transmit(&huart1, tx_buff, sizeof(tx_buff), 1000);
+#ifdef LED_DEBUG
 			HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_SET);
+#endif
 		}
+#ifdef LED_DEBUG
 		HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_RESET);
+#endif
 		blink_and_text();
 		HAL_Delay(2000);
+#ifdef LED_DEBUG
 		HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_SET);
+#endif
 		blink_and_text();
 		HAL_Delay(2000);
 
@@ -471,8 +512,9 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
 		return;
 	}
 	exti_tick = ticks_now;
-
+#ifdef LED_DEBUG
 	HAL_GPIO_WritePin(LED_LEFT_1_GPIO_Port, LED_LEFT_1_Pin, GPIO_PIN_SET);
+#endif
 
 	switch (GPIO_Pin) {
 	case NH_right_Pin:
@@ -503,7 +545,9 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
 	default:
 		__NOP();
 	}
+#ifdef LED_DEBUG
 	HAL_GPIO_WritePin(LED_LEFT_1_GPIO_Port, LED_LEFT_1_Pin, GPIO_PIN_RESET);
+#endif
 
 	// DEBUG
 	//sprintf(buf, "t: %lu", ticks_elapsed);
@@ -528,13 +572,43 @@ void statham(char *json_bytes) {
 		}
 	}
 
+	json_t const *led1 = json_getProperty(json, "led1");
+	if (0 != led1 && JSON_BOOLEAN == json_getType(led1)) {
+		myhal_led_left1(json_getBoolean(led1));
+	}
+	json_t const *led2 = json_getProperty(json, "led2");
+	if (0 != led2 && JSON_BOOLEAN == json_getType(led2)) {
+		myhal_led_left2(json_getBoolean(led2));
+	}
+	json_t const *led3 = json_getProperty(json, "led3");
+	if (0 != led3 && JSON_BOOLEAN == json_getType(led3)) {
+		myhal_led_left3(json_getBoolean(led3));
+	}
+	json_t const *led4 = json_getProperty(json, "led4");
+	if (0 != led4 && JSON_BOOLEAN == json_getType(led4)) {
+		myhal_led_right1(json_getBoolean(led4));
+	}
+	json_t const *led5 = json_getProperty(json, "led5");
+	if (0 != led5 && JSON_BOOLEAN == json_getType(led5)) {
+		myhal_led_right1(json_getBoolean(led5));
+	}
+	json_t const *led6 = json_getProperty(json, "led6");
+	if (0 != led6 && JSON_BOOLEAN == json_getType(led6)) {
+		myhal_led_right1(json_getBoolean(led6));
+	}
+
+
+
+
 }
 
 static uint8_t rx_buf[120] = { 0 };
 uint8_t rx_buf_idx = 0;
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+#ifdef LED_DEBUG
 	HAL_GPIO_WritePin(LED_LEFT_3_GPIO_Port, LED_LEFT_3_Pin, GPIO_PIN_SET);
+#endif
 	rx_buf[rx_buf_idx++] = UART1_rxBuffer;
 
 	if (rx_buf_idx == 120) {
@@ -556,8 +630,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (rx_buf_idx == 30) {
 		__NOP();
 	}
-
+#ifdef LED_DEBUG
 	HAL_GPIO_WritePin(LED_LEFT_3_GPIO_Port, LED_LEFT_3_Pin, GPIO_PIN_RESET);
+#endif
 	HAL_UART_Receive_IT(&huart1, &UART1_rxBuffer, 1); // get next
 }
 
