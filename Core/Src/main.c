@@ -72,42 +72,6 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void blink_and_text() {
-	HAL_GPIO_WritePin(LED_RIGHT_3_GPIO_Port, LED_RIGHT_3_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_LEFT_1_GPIO_Port, LED_LEFT_1_Pin, GPIO_PIN_SET);
-	HAL_Delay(200);
-	lcd_display_write_line(0, "   ISAE EFO Anz   ");
-	lcd_display_write_line(1, "                  ");
-	lcd_display_write_line(2, "                  ");
-	lcd_display_write_line(3, "                  ");
-	HAL_GPIO_WritePin(LED_LEFT_1_GPIO_Port, LED_LEFT_1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_LEFT_2_GPIO_Port, LED_LEFT_2_Pin, GPIO_PIN_SET);
-	HAL_Delay(400);
-	lcd_display_write_line(0, "                  ");
-	lcd_display_write_line(1, "   ISAE EFO Anz   ");
-	lcd_display_write_line(2, "                  ");
-	lcd_display_write_line(3, "                  ");
-	HAL_GPIO_WritePin(LED_LEFT_2_GPIO_Port, LED_LEFT_2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_LEFT_3_GPIO_Port, LED_LEFT_3_Pin, GPIO_PIN_SET);
-	HAL_Delay(400);
-	lcd_display_write_line(0, "                  ");
-	lcd_display_write_line(1, "                  ");
-	lcd_display_write_line(2, "   ISAE EFO Anz   ");
-	lcd_display_write_line(3, "                  ");
-	HAL_GPIO_WritePin(LED_LEFT_3_GPIO_Port, LED_LEFT_3_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_RIGHT_1_GPIO_Port, LED_RIGHT_1_Pin, GPIO_PIN_SET);
-	HAL_Delay(400);
-	lcd_display_write_line(0, "                  ");
-	lcd_display_write_line(1, "                  ");
-	lcd_display_write_line(2, "                  ");
-	lcd_display_write_line(3, "   ISAE EFO Anz   ");
-	HAL_GPIO_WritePin(LED_RIGHT_1_GPIO_Port, LED_RIGHT_1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_RIGHT_2_GPIO_Port, LED_RIGHT_2_Pin, GPIO_PIN_SET);
-	HAL_Delay(400);
-	HAL_GPIO_WritePin(LED_RIGHT_2_GPIO_Port, LED_RIGHT_2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_RIGHT_3_GPIO_Port, LED_RIGHT_3_Pin, GPIO_PIN_SET);
-	HAL_Delay(400);
-}
 
 #define LED_DEBUG								0
 
@@ -269,6 +233,44 @@ void lcd_display_write_line(uint8_t row, char const ptext[LCD_N_COL]) {
 	}
 }
 
+void blink_and_text() {
+	HAL_GPIO_WritePin(LED_RIGHT_3_GPIO_Port, LED_RIGHT_3_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_LEFT_1_GPIO_Port, LED_LEFT_1_Pin, GPIO_PIN_SET);
+	HAL_Delay(200);
+	lcd_display_write_line(0, "   ISAE EFO Anz   ");
+	lcd_display_write_line(1, "                  ");
+	lcd_display_write_line(2, "                  ");
+	lcd_display_write_line(3, "                  ");
+	HAL_GPIO_WritePin(LED_LEFT_1_GPIO_Port, LED_LEFT_1_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_LEFT_2_GPIO_Port, LED_LEFT_2_Pin, GPIO_PIN_SET);
+	HAL_Delay(400);
+	lcd_display_write_line(0, "                  ");
+	lcd_display_write_line(1, "   ISAE EFO Anz   ");
+	lcd_display_write_line(2, "                  ");
+	lcd_display_write_line(3, "                  ");
+	HAL_GPIO_WritePin(LED_LEFT_2_GPIO_Port, LED_LEFT_2_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_LEFT_3_GPIO_Port, LED_LEFT_3_Pin, GPIO_PIN_SET);
+	HAL_Delay(400);
+	lcd_display_write_line(0, "                  ");
+	lcd_display_write_line(1, "                  ");
+	lcd_display_write_line(2, "   ISAE EFO Anz   ");
+	lcd_display_write_line(3, "                  ");
+	HAL_GPIO_WritePin(LED_LEFT_3_GPIO_Port, LED_LEFT_3_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_RIGHT_1_GPIO_Port, LED_RIGHT_1_Pin, GPIO_PIN_SET);
+	HAL_Delay(400);
+	lcd_display_write_line(0, "                  ");
+	lcd_display_write_line(1, "                  ");
+	lcd_display_write_line(2, "                  ");
+	lcd_display_write_line(3, "   ISAE EFO Anz   ");
+	HAL_GPIO_WritePin(LED_RIGHT_1_GPIO_Port, LED_RIGHT_1_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_RIGHT_2_GPIO_Port, LED_RIGHT_2_Pin, GPIO_PIN_SET);
+	HAL_Delay(400);
+	HAL_GPIO_WritePin(LED_RIGHT_2_GPIO_Port, LED_RIGHT_2_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_RIGHT_3_GPIO_Port, LED_RIGHT_3_Pin, GPIO_PIN_SET);
+	HAL_Delay(400);
+}
+
+
 void lcd_display_configure(void) {
 	/* The contrast is spread over two seperate commands and so split here */
 	uint8_t contrast_msb = ((LCD_CONTRAST & 0x30U) >> 4U);
@@ -301,8 +303,9 @@ void lcd_display_init_task() {
 
 void sendCommand(uint8_t cmd) {
 	uint8_t const buffer[] = { MODE_COMMAND, cmd };
-	HAL_StatusTypeDef a = HAL_I2C_Master_Transmit(&hi2c2, LCD_I2C_ADDR,
+	HAL_I2C_Master_Transmit(&hi2c2, LCD_I2C_ADDR,
 			(uint8_t*) &buffer, sizeof(buffer), 1000); //Sending in Blocking mode
+
 	HAL_Delay(1);
 }
 
@@ -315,7 +318,7 @@ void loop_print_screen() {
 		HAL_StatusTypeDef ret = HAL_UART_Receive(&huart1, rx_buff_byte, 10,
 				1000);
 		if (HAL_OK == ret) {
-			char buf[10];
+			char buf[10+8];
 			sprintf(buf, "wrote: %s", rx_buff_byte);
 			lcd_display_write_line(2, buf);
 		}
@@ -412,7 +415,7 @@ int main(void)
 			HAL_Delay(2000);
 			HAL_ADC_Start(&hadc1);
 			HAL_ADC_PollForConversion(&hadc1, 100);
-			uint16_t adc_val = HAL_ADC_GetValue(&hadc1);
+			/*uint16_t adc_val =*/ HAL_ADC_GetValue(&hadc1);
 			HAL_ADC_Stop(&hadc1);
 #ifdef LED_DEBUG
 			HAL_GPIO_WritePin(LED_LCD_GPIO_Port, LED_LCD_Pin, GPIO_PIN_RESET);
@@ -481,12 +484,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+/*
 static uint8_t c_up = 0;
 static uint8_t c_down = 0;
 static uint8_t c_left = 0;
 static uint8_t c_right = 0;
 static uint8_t c_enter = 0;
+*/
 static uint32_t exti_tick = 0;
 #define EXTI_DISP_LINE 0
 
@@ -516,6 +520,9 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
 	HAL_GPIO_WritePin(LED_LEFT_1_GPIO_Port, LED_LEFT_1_Pin, GPIO_PIN_SET);
 #endif
 
+	/*
+	 * TODO: dont send in interrupt!!!!
+	 */
 	switch (GPIO_Pin) {
 	case NH_right_Pin:
 		send_uart("{\"keypress\":\"right\"}");
@@ -602,7 +609,8 @@ void statham(char *json_bytes) {
 
 }
 
-static uint8_t rx_buf[200] = { 0 };
+#define RXBUFLEN 200
+static uint8_t rx_buf[RXBUFLEN] = { 0 };
 uint8_t rx_buf_idx = 0;
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
@@ -611,8 +619,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 #endif
 	rx_buf[rx_buf_idx++] = UART1_rxBuffer;
 
-	if (rx_buf_idx == 120) {
-		char buf[125];
+	if (rx_buf_idx == RXBUFLEN) {
+		char buf[RXBUFLEN+10];
 		// overflow!!!
 		sprintf(buf, "txt: %s", rx_buf);
 		lcd_display_write_line(3, buf);
