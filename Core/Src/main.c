@@ -590,11 +590,11 @@ void statham(char *json_bytes) {
 	}
 	json_t const *led5 = json_getProperty(json, "led5");
 	if (0 != led5 && JSON_BOOLEAN == json_getType(led5)) {
-		myhal_led_right1(json_getBoolean(led5));
+		myhal_led_right2(json_getBoolean(led5));
 	}
 	json_t const *led6 = json_getProperty(json, "led6");
 	if (0 != led6 && JSON_BOOLEAN == json_getType(led6)) {
-		myhal_led_right1(json_getBoolean(led6));
+		myhal_led_right3(json_getBoolean(led6));
 	}
 
 
